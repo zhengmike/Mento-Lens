@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mento Lens</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+
+    /* Material Design 3 (M3) Inspired Styles */
+    :root {
+      --md-sys-color-primary: #006874;
+      --md-sys-color-on-primary: #ffffff;
+      --md-sys-color-primary-container: #97f0ff;
+      --md-sys-color-on-primary-container: #001f24;
+      --md-sys-color-secondary: #4a6268;
+      --md-sys-color-on-secondary: #ffffff;
+      --md-sys-color-error: #ba1a1a;
+      --md-sys-color-on-error: #ffffff;
+      --md-sys-color-surface: #fbfdfd;
+      --md-sys-color-on-surface: #191c1d;
+      --md-sys-color-surface-variant: #dde4e6;
+      --md-sys-color-on-surface-variant: #3f494b;
+      --md-sys-color-surface-container-highest: #dde4e6;
+      --md-sys-color-outline: #6f797a;
+      --md-sys-color-outline-variant: #bfc8ca;
+      --md-sys-elevation-1: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --md-sys-elevation-2: 0 4px 6px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+      --md-sys-elevation-3: 0 4px 8px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      width: 100%;
+      min-width: 200px;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 32px 24px 24px;
+      font-family: 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      box-sizing: border-box;
+      min-height: 100vh;
+    }
+
+    .header-group {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      margin-bottom: 32px;
+      gap: 12px;
+    }
+
+    .main-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 16px;
+      overflow: visible;
+    }
+
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-top: 16px;
+      padding-top: 0;
+    }
+
+    .logo-container {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--md-sys-color-primary-container) 0%, var(--md-sys-color-primary) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--md-sys-elevation-1);
+      flex-shrink: 0;
+    }
+
+    .logo {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+      line-height: 1.2;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .manifesto {
+      margin: 8px 0 28px 0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      color: var(--md-sys-color-on-surface);
+      text-align: center;
+      font-weight: 400;
+      letter-spacing: 0;
+      max-width: 400px;
+      line-height: 1.5;
+    }
+
+    .manifesto-line1 {
+      display: block;
+      color: var(--md-sys-color-outline);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 400;
+      font-size: 22px;
+      font-style: italic;
+      margin-bottom: 2px;
+      letter-spacing: 0.2px;
+    }
+
+    .manifesto-line2 {
+      display: block;
+      color: var(--md-sys-color-outline);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 400;
+      font-size: 22px;
+      font-style: normal;
+      letter-spacing: 0.2px;
+    }
+
+    .hero-emoji {
+      font-size: 40px;
+      color: var(--md-sys-color-outline);
+      text-align: center;
+      margin: -4px 0 28px 0;
+      line-height: 1;
+    }
+
+    .status-text {
+      margin: 8px 0 16px 0;
+      font-size: 12px;
+      color: var(--md-sys-color-outline);
+      text-align: center;
+      min-height: 16px;
+      line-height: 1.4;
+      font-weight: 400;
+    }
+
+    .storage-link {
+      display: block;
+      font-size: 13px;
+      color: var(--md-sys-color-primary);
+      font-weight: 400;
+      text-decoration: none;
+      cursor: pointer;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      line-height: 1.4;
+      letter-spacing: 0;
+    }
+
+    /* M3 FAB / Extended Button */
+    button {
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      border: none;
+      border-radius: 100px;
+      padding: 16px 48px;
+      font-size: 16px;
+      font-weight: 400;
+      font-family: inherit;
+      letter-spacing: 0;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--md-sys-elevation-1);
+    }
+
+    button:hover {
+      background-color: #004f58;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button.recording {
+      background-color: var(--md-sys-color-error);
+      color: var(--md-sys-color-on-error);
+      animation: pulse 2s infinite;
+    }
+
+    button.recording:hover {
+      background-color: #93000a;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(186, 26, 26, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(186, 26, 26, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(186, 26, 26, 0); }
+    }
+
+    /* MD3 System Audio Switch */
+    .system-audio-switch {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+      margin: 8px 0 4px;
+    }
+
+    .system-audio-switch input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .switch-track {
+      width: 44px;
+      height: 26px;
+      background: var(--md-sys-color-surface-container-highest);
+      border-radius: 100px;
+      position: relative;
+      transition: background 0.2s ease;
+      border: 2px solid var(--md-sys-color-outline);
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+
+    .system-audio-switch input:checked + .switch-track {
+      background: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .switch-thumb {
+      width: 14px;
+      height: 14px;
+      background: var(--md-sys-color-outline);
+      border-radius: 50%;
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      transition: transform 0.2s ease, background 0.2s ease;
+      box-shadow: var(--md-sys-elevation-1);
+    }
+
+    .system-audio-switch input:checked + .switch-track .switch-thumb {
+      transform: translateX(18px);
+      background: var(--md-sys-color-on-primary);
+    }
+
+    .switch-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--md-sys-color-on-surface-variant);
+      letter-spacing: 0;
+    }
+
+    .switch-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .system-audio-switch input:disabled + .switch-track {
+      opacity: 0.38;
+      cursor: not-allowed;
+    }
+
+    .system-audio-switch input:disabled ~ .switch-label {
+      opacity: 0.38;
+    }
+
+    /* Countdown overlay */
+    .countdown-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .countdown-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .countdown-number {
+      font-size: 96px;
+      font-weight: 300;
+      color: var(--md-sys-color-primary);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .countdown-label {
+      font-size: 14px;
+      color: var(--md-sys-color-on-surface-variant);
+      letter-spacing: 0.25px;
+    }
+
+    .countdown-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .countdown-cancel {
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-primary);
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: 100px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 400;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      box-shadow: var(--md-sys-elevation-1);
+    }
+
+    .countdown-cancel:hover {
+      background-color: var(--md-sys-color-surface-variant);
+    }
+
+    .countdown-cancel:active {
+      transform: scale(0.98);
+    }
+
+    .countdown-start-now {
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      border: none;
+      border-radius: 100px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 400;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      box-shadow: var(--md-sys-elevation-1);
+    }
+
+    .countdown-start-now:hover {
+      background-color: #004f58;
+    }
+
+    .countdown-start-now:active {
+      transform: scale(0.98);
+    }
+
+    /* Stop confirmation dialog */
+    .stop-dialog-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .stop-dialog-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .stop-dialog {
+      background-color: var(--md-sys-color-surface);
+      border-radius: 28px;
+      padding: 24px;
+      width: 312px;
+      max-width: calc(100% - 48px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .stop-dialog-body {
+      font-size: 14px;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .stop-dialog-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .stop-dialog-btn {
+      width: 100%;
+      justify-content: center;
+      border-radius: 100px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      border: none;
+      font-family: inherit;
+    }
+
+    .stop-dialog-btn.primary {
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      box-shadow: var(--md-sys-elevation-1);
+    }
+
+    .stop-dialog-btn.primary:hover {
+      background-color: #004f58;
+    }
+
+    .stop-dialog-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Audio Visualizer Wave */
+    .visualizer-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 30px;
+      margin-bottom: 12px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .visualizer-container.active {
+      opacity: 1;
+    }
+
+    .bar {
+      width: 6px;
+      height: 4px;
+      background-color: var(--md-sys-color-error);
+      border-radius: 4px;
+      transition: height 0.05s ease; /* Fast transition for smooth audio reactivity */
+    }
+
+    /* Simple icon placeholder */
+    .icon {
+      width: 18px;
+      height: 18px;
+      background-color: currentColor;
+      mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>');
+      -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>');
+      mask-repeat: no-repeat;
+      -webkit-mask-repeat: no-repeat;
+      mask-position: center;
+      -webkit-mask-position: center;
+    }
+
+    /* More Options */
+    .more-options {
+      width: 100%;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .more-options-toggle {
+      background: none;
+      border: 1px solid var(--md-sys-color-outline);
+      color: var(--md-sys-color-primary);
+      font-size: 13px;
+      font-weight: 400;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      box-shadow: none;
+      transition: all 0.2s;
+      border-radius: 100px;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0;
+    }
+
+    .more-options-toggle:hover {
+      background: none;
+      box-shadow: none;
+    }
+
+    .more-options-toggle::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--md-sys-color-primary);
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .more-options-toggle:hover::before {
+      opacity: 0.08;
+    }
+
+    .more-options-chevron {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .more-options-chevron.expanded {
+      transform: rotate(180deg);
+    }
+
+    .more-options-content {
+      width: 100%;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0;
+    }
+
+    .more-options-content.expanded {
+      max-height: 300px;
+      opacity: 1;
+      padding-top: 12px;
+      padding-bottom: 4px;
+    }
+
+    .more-option-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .more-option-item + .more-option-item {
+      border-top: none;
+    }
+
+    .more-option-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--md-sys-color-outline);
+      flex-shrink: 0;
+    }
+
+    .more-option-select {
+      flex: 1;
+      background: transparent;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: 8px;
+      color: var(--md-sys-color-on-surface);
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      outline: none;
+      padding: 8px 12px;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%236f797a" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 32px;
+    }
+
+    .more-option-select:focus {
+      border-color: var(--md-sys-color-primary);
+      border-width: 2px;
+      padding: 7px 11px;
+      padding-right: 31px;
+    }
+
+    .more-option-select option {
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .more-option-shortcut {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0;
+    }
+
+    .shortcut-label {
+      font-size: 13px;
+      color: var(--md-sys-color-outline);
+      flex-shrink: 0;
+    }
+
+    .more-option-shortcut span#shortcutValue {
+      font-size: 13px;
+      color: var(--md-sys-color-on-surface);
+      flex: 1;
+    }
+
+    .more-option-btn {
+      background: none;
+      color: var(--md-sys-color-primary);
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 6px 12px;
+      box-shadow: none;
+      transition: background-color 0.2s;
+      border-radius: 100px;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.1px;
+    }
+
+    .more-option-btn:hover {
+      background-color: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
+      box-shadow: none;
+    }
+
+    .more-option-btn:active {
+      background-color: color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent);
+    }
+
+    .storage-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Screenshot Button - MD3 FAB Style */
+    .screenshot-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      border: none;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 16px auto 12px;
+      padding: 0;
+      box-shadow: var(--md-sys-elevation-2);
+      transition: box-shadow 0.2s ease, transform 0.15s ease;
+    }
+
+    .screenshot-btn:hover {
+      box-shadow: var(--md-sys-elevation-3);
+      transform: translateY(-1px);
+    }
+
+    .screenshot-btn:active {
+      transform: translateY(0) scale(0.96);
+      box-shadow: var(--md-sys-elevation-1);
+    }
+
+    .screenshot-btn:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .screenshot-btn-icon {
+      width: 24px;
+      height: 24px;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+
+    /* Screenshots List */
+    .screenshots-list {
+      width: 100%;
+      max-width: 100%;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+      overflow: visible;
+    }
+
+    .screenshots-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .screenshots-title {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--md-sys-color-on-surface-variant);
+      letter-spacing: 0;
+    }
+
+    .screenshots-count {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--md-sys-color-primary);
+    }
+
+    .screenshots-container {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: visible;
+      padding: 10px 8px 8px 8px;
+    }
+
+    .screenshot-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      padding: 8px;
+      margin: -4px;
+    }
+
+    .screenshot-thumb {
+      width: 100px;
+      height: 62px;
+      object-fit: cover;
+      border-radius: 6px;
+      flex-shrink: 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .screenshot-item:hover .screenshot-thumb {
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .screenshot-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .screenshot-time {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--md-sys-color-outline);
+      line-height: 1.3;
+    }
+
+    .screenshot-delete {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: var(--md-sys-color-error);
+      color: var(--md-sys-color-on-error);
+      border: none;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      box-shadow: var(--md-sys-elevation-1);
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 10;
+    }
+
+    .screenshot-item:hover .screenshot-delete {
+      opacity: 1;
+    }
+
+    .screenshot-delete:hover {
+      transform: scale(1.1);
+    }
+
+    /* Undo toast */
+    .undo-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--md-sys-color-on-surface);
+      color: var(--md-sys-color-surface);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: var(--md-sys-elevation-2);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .undo-toast.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .undo-toast button {
+      background: none;
+      color: var(--md-sys-color-primary-container);
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 4px 8px;
+      box-shadow: none;
+      border-radius: 8px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="header-group">
+    <div class="logo-container">
+      <img src="../icons/icon128.png" alt="Mento Lens Logo" class="logo">
+    </div>
+    <h1>Mento Lens</h1>
+  </div>
+
+  <p class="manifesto">
+    <span class="manifesto-line1">Capture your work context.</span>
+    <span class="manifesto-line2">Let AI learn your skills.</span>
+  </p>
+
+  <div class="hero-emoji">&#128248;</div>
+
+  <div class="main-actions">
+    <div class="visualizer-container" id="visualizer">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+
+    <button id="recordBtn">
+      <div class="icon"></div>
+      <span id="btnText">Start Recording</span>
+    </button>
+
+    <label class="system-audio-switch" id="systemAudioSwitch">
+      <input type="checkbox" id="systemAudioCheckbox">
+      <span class="switch-track">
+        <span class="switch-thumb"></span>
+      </span>
+      <span class="switch-label">
+        <svg class="switch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+        <span>System audio</span>
+      </span>
+    </label>
+
+    <p class="status-text" id="statusText">Ready to capture context.</p>
+
+    <!-- Screenshot Button - MD3 FAB Style -->
+    <button id="screenshotBtn" class="screenshot-btn" style="display: none;" title="Capture Screenshot">
+      <svg class="screenshot-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </button>
+
+    <!-- Screenshots List - Only visible during recording -->
+    <div id="screenshotsList" class="screenshots-list" style="display: none;">
+      <div class="screenshots-header">
+        <span class="screenshots-title">Screenshots</span>
+        <span class="screenshots-count" id="screenshotsCount">0</span>
+      </div>
+      <div class="screenshots-container" id="screenshotsContainer"></div>
+    </div>
+  </div>
+
+  <!-- Stop Recording Confirmation Dialog -->
+  <div id="stopDialogOverlay" class="stop-dialog-overlay">
+    <div class="stop-dialog">
+      <p class="stop-dialog-body">Open My Recordings?</p>
+      <div class="stop-dialog-actions">
+        <button class="stop-dialog-btn primary" id="stopDialogView">Open</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Countdown Overlay -->
+  <div id="countdownOverlay" class="countdown-overlay">
+    <div class="countdown-number" id="countdownNumber">3</div>
+    <div class="countdown-label">Recording starts in...</div>
+    <div class="countdown-actions">
+      <button class="countdown-cancel" id="countdownCancel">Cancel</button>
+      <button class="countdown-start-now" id="countdownStartNow">Start Now</button>
+    </div>
+  </div>
+
+  <div class="settings-group">
+    <a id="storageCountLink" class="storage-link" href="#">Loading storage...</a>
+
+    <!-- More Options -->
+    <div class="more-options" id="moreOptions">
+      <button class="more-options-toggle" id="moreOptionsToggle">
+        <span>More options</span>
+        <svg class="more-options-chevron" id="moreOptionsChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+      <div class="more-options-content" id="moreOptionsContent">
+        <!-- Microphone Selection -->
+        <div class="more-option-item">
+          <svg class="more-option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+          <select id="micSelect" class="more-option-select">
+            <option value="">Loading devices...</option>
+          </select>
+        </div>
+        <!-- Keyboard Shortcut -->
+        <div class="more-option-item">
+          <svg class="more-option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>
+          <div class="more-option-shortcut">
+            <span class="shortcut-label">Shortcut</span>
+            <span id="shortcutValue">Loading...</span>
+            <button class="more-option-btn" id="shortcutBtn">Change</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Undo Toast -->
+  <div id="undoToast" class="undo-toast">
+    <span>Screenshot deleted</span>
+    <button id="undoBtn">Undo</button>
+  </div>
+
+  <script src="../lib/storage.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

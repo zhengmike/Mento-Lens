@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- White background -->
+  <rect width="128" height="128" fill="white"/>
+  <!-- Corner brackets (dark slate) -->
+  <path d="M 12 40 L 12 12 L 52 12" fill="none" stroke="#546E7A" stroke-width="10" stroke-linecap="square"/>
+  <path d="M 116 40 L 116 12 L 76 12" fill="none" stroke="#546E7A" stroke-width="10" stroke-linecap="square"/>
+  <path d="M 12 88 L 12 116 L 52 116" fill="none" stroke="#546E7A" stroke-width="10" stroke-linecap="square"/>
+  <path d="M 116 88 L 116 116 L 76 116" fill="none" stroke="#546E7A" stroke-width="10" stroke-linecap="square"/>
+  <!-- Star (orange) -->
+  <polygon points="64,22 72,52 104,52 78,70 88,100 64,82 40,100 50,70 24,52 56,52" fill="#FF9800"/>
+</svg>

@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Mento Lens",
+  "version": "1.0.0",
+  "description": "Capture user context via screenshots and voice recordings.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "offscreen",
+    "sidePanel",
+    "tabCapture"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background/service_worker.js"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+M",
+        "mac": "Command+Shift+M"
+      },
+      "description": "Open Mento Lens side panel"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["annotate/annotate.html", "annotate/annotate.js", "lib/storage.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

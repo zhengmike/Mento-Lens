@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mento Lens - Initial Setup</title>
+  <style>
+    :root {
+      --md-sys-color-primary: #006874;
+      --md-sys-color-on-primary: #ffffff;
+      --md-sys-color-surface: #fbfdfd;
+      --md-sys-color-on-surface: #191c1d;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+    }
+    .card {
+      background: white;
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      text-align: center;
+      max-width: 400px;
+    }
+    h1 { margin-top: 0; }
+    p { color: #6f797a; line-height: 1.6; margin-bottom: 32px; }
+    button {
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      border: none;
+      border-radius: 100px;
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover { background-color: #004f58; }
+    #successMsg { display: none; color: #006874; font-weight: 600; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Microphone Access Required</h1>
+    <p>To capture audio context for your recordings, Mento Lens needs your permission to use the microphone. Please click the button below and select <b>"Allow"</b> in the browser prompt.</p>
+    <button id="grantBtn">Grant Microphone Access</button>
+    <div id="successMsg">✅ Permission granted! You can close this tab and use the extension.</div>
+  </div>
+  <script src="setup.js"></script>
+</body>
+</html>

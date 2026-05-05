@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mento Lens - Recording History</title>
+  <style>
+    /* Material Design 3 Token System */
+    :root {
+      --md-sys-color-primary: #006874;
+      --md-sys-color-on-primary: #ffffff;
+      --md-sys-color-primary-container: #97f0ff;
+      --md-sys-color-on-primary-container: #001f24;
+      --md-sys-color-secondary: #4a6268;
+      --md-sys-color-on-secondary: #ffffff;
+      --md-sys-color-surface: #fbfdfd;
+      --md-sys-color-surface-variant: #dbe4e6;
+      --md-sys-color-on-surface: #191c1d;
+      --md-sys-color-on-surface-variant: #3f484a;
+      --md-sys-color-outline: #6f797a;
+      --md-sys-color-error: #ba1a1a;
+      --md-sys-color-on-error: #ffffff;
+      --md-sys-color-error-container: #ffdad6;
+      --md-sys-color-on-error-container: #410002;
+
+      --md-sys-elevation-1: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --md-sys-elevation-2: 0 4px 6px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+      --md-sys-elevation-3: 0 10px 15px rgba(0,0,0,0.06), 0 4px 6px rgba(0,0,0,0.04);
+
+      --md-sys-shape-medium: 12px;
+      --md-sys-shape-large: 16px;
+      --md-sys-shape-extra-large: 28px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0 24px 24px;
+      font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      max-width: 720px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Top App Bar style header */
+    .page-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: var(--md-sys-color-surface);
+      margin-bottom: 24px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--md-sys-color-surface-variant);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--md-sys-color-on-surface);
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: var(--md-sys-color-on-surface-variant);
+      font-weight: 400;
+    }
+
+    /* MD3 Card - Elevated style */
+    .record-card {
+      background-color: var(--md-sys-color-surface);
+      border-radius: var(--md-sys-shape-large);
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      box-shadow: var(--md-sys-elevation-1);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: box-shadow 0.2s ease, background-color 0.2s ease, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), height 0.35s cubic-bezier(0.4, 0, 0.2, 1), margin 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      transform-origin: center top;
+    }
+
+    /* New card entry animation */
+    .record-card.new-card {
+      animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+        max-height: 0;
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        max-height: 500px;
+        margin-bottom: 12px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+      }
+    }
+
+    /* MD3 Delete exit animation */
+    .timeline-row.deleting {
+      opacity: 0;
+      transform: scale(0.92);
+      margin-bottom: 0;
+      pointer-events: none;
+    }
+
+    .timeline-row.deleting .record-card {
+      height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      margin-bottom: 0;
+      overflow: hidden;
+    }
+
+    .record-card:hover {
+      box-shadow: var(--md-sys-elevation-2);
+    }
+
+    /* State layer on hover */
+    .record-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: var(--md-sys-color-primary);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .record-card:hover::before {
+      opacity: 0.04;
+    }
+
+    .record-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .record-title {
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+      font-size: 16px;
+      letter-spacing: 0.15px;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid transparent;
+      padding: 2px 4px;
+      margin: -2px -4px;
+      border-radius: 4px;
+      font-family: inherit;
+      width: auto;
+      min-width: 120px;
+      transition: border-color 0.2s, background-color 0.2s;
+      cursor: text;
+    }
+
+    .record-title:hover {
+      border-bottom-color: var(--md-sys-color-outline);
+    }
+
+    .record-title:focus {
+      outline: none;
+      border-bottom-color: var(--md-sys-color-primary);
+      background-color: var(--md-sys-color-surface-variant);
+    }
+
+    .record-title.saved {
+      animation: saveFlash 0.6s ease;
+    }
+
+    @keyframes saveFlash {
+      0% { color: var(--md-sys-color-primary); }
+      100% { color: var(--md-sys-color-on-surface); }
+    }
+
+    .record-time {
+      font-size: 12px;
+      color: rgba(128, 128, 128, 0.35);
+      font-weight: 400;
+      letter-spacing: 0.4px;
+    }
+
+    /* Custom audio player - MD3 style */
+    .audio-players.dual {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .dual-row,
+    .audio-row {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .audio-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(128, 128, 128, 0.35);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      text-align: right;
+    }
+
+    .volume-control {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+
+    .vol-btn {
+      width: 22px;
+      height: 18px;
+      border: none;
+      background: none;
+      color: rgba(128, 128, 128, 0.35);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s, color 0.15s;
+    }
+
+    .vol-btn:hover {
+      background-color: rgba(128, 128, 128, 0.1);
+      color: rgba(128, 128, 128, 0.6);
+    }
+
+    .vol-btn:active {
+      background-color: rgba(128, 128, 128, 0.16);
+    }
+
+    .vol-value {
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(128, 128, 128, 0.35);
+      letter-spacing: 0.3px;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .audio-player {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .play-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background-color 0.2s, transform 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .play-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: var(--md-sys-color-on-primary-container);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .play-btn:hover::after {
+      opacity: 0.08;
+    }
+
+    .play-btn:active {
+      transform: scale(0.95);
+    }
+
+    .play-btn svg {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .progress-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background-color: var(--md-sys-color-surface-variant);
+      border-radius: 2px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--md-sys-color-primary);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .time-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+      letter-spacing: 0.4px;
+    }
+
+    /* Speed button */
+    .speed-btn {
+      background: none;
+      border: none;
+      color: var(--md-sys-color-primary);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      padding: 2px 6px;
+      border-radius: var(--md-sys-shape-small);
+      cursor: pointer;
+      transition: background-color 0.2s;
+      position: relative;
+      overflow: hidden;
+      margin-left: 8px;
+    }
+
+    .speed-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: currentColor;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .speed-btn:hover::before {
+      opacity: 0.08;
+    }
+
+    .speed-btn:active::before {
+      opacity: 0.12;
+    }
+
+    .speed-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Card actions row */
+    .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Screenshots Section */
+    .screenshots-section {
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--md-sys-color-surface-variant);
+    }
+
+    .screenshots-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .screenshots-header:hover {
+      opacity: 0.7;
+    }
+
+    .screenshots-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--md-sys-color-primary);
+    }
+
+    .screenshots-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface-variant);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .screenshots-count {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--md-sys-color-primary);
+      background-color: var(--md-sys-color-primary-container);
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: auto;
+    }
+
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 12px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      padding: 8px;
+    }
+
+    .screenshots-grid.expanded {
+      max-height: 400px;
+      opacity: 1;
+      overflow-y: auto;
+      overflow-x: visible;
+    }
+
+    .screenshot-thumb-wrapper {
+      position: relative;
+      border-radius: 8px;
+      overflow: visible;
+      border: 1px solid var(--md-sys-color-outline);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .screenshot-thumb-wrapper:hover {
+      transform: scale(1.08);
+      box-shadow: var(--md-sys-elevation-2);
+      z-index: 10;
+    }
+
+    .screenshot-thumb-wrapper img {
+      width: 100%;
+      height: 60px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .screenshot-thumb-time {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      font-size: 9px;
+      padding: 2px 4px;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    .screenshot-delete-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: var(--md-sys-color-error);
+      color: var(--md-sys-color-on-error);
+      border: none;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      box-shadow: var(--md-sys-elevation-1);
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.15s;
+      z-index: 20;
+    }
+
+    .screenshot-thumb-wrapper:hover .screenshot-delete-btn {
+      opacity: 1;
+    }
+
+    .screenshot-delete-btn:hover {
+      transform: scale(1.15);
+    }
+
+    .screenshot-delete-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Screenshot Lightbox - MD3 Dialog style */
+    .lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      padding: 24px;
+    }
+
+    .lightbox-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .lightbox-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .lightbox-image-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 100%;
+    }
+
+    .lightbox-img {
+      max-width: min(800px, calc(100vw - 160px));
+      max-height: calc(100vh - 140px);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      object-fit: contain;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: background 0.2s;
+      backdrop-filter: blur(4px);
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .lightbox-nav {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--md-sys-color-surface-variant);
+      border: none;
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
+      box-shadow: var(--md-sys-elevation-1);
+    }
+
+    .lightbox-nav:hover {
+      background: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .lightbox-nav:active {
+      transform: scale(0.95);
+    }
+
+    .lightbox-nav svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .lightbox-nav.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .lightbox-counter {
+      background: var(--md-sys-color-surface-variant);
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 100px;
+      letter-spacing: 0.5px;
+      box-shadow: var(--md-sys-elevation-1);
+    }
+
+    .lightbox-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .lightbox-zoom-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--md-sys-color-surface-variant);
+      border-radius: 100px;
+      padding: 4px;
+      box-shadow: var(--md-sys-elevation-1);
+    }
+
+    .lightbox-zoom-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, transform 0.1s;
+      padding: 0;
+      box-shadow: none;
+    }
+
+    .lightbox-zoom-btn:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .lightbox-zoom-btn:active {
+      transform: scale(0.95);
+    }
+
+    .lightbox-zoom-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .lightbox-zoom-level {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+      min-width: 40px;
+      text-align: center;
+      user-select: none;
+    }
+
+    .lightbox-img-wrapper {
+      overflow: hidden;
+      border-radius: 16px;
+      cursor: grab;
+      max-width: min(800px, calc(100vw - 160px));
+      max-height: calc(100vh - 180px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox-img-wrapper:active {
+      cursor: grabbing;
+    }
+
+    .lightbox-img {
+      max-width: 100%;
+      max-height: calc(100vh - 180px);
+      border-radius: 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      object-fit: contain;
+      transform-origin: center center;
+      will-change: transform;
+    }
+
+    .lightbox-img.smooth {
+      transition: transform 0.15s ease-out;
+    }
+
+    /* MD3 Text Button */
+    .md3-text-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.1px;
+      padding: 8px 12px;
+      border-radius: var(--md-sys-shape-medium);
+      cursor: pointer;
+      transition: background-color 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .md3-text-btn.download-btn,
+    .md3-text-btn.play-both-btn {
+      color: var(--md-sys-color-primary);
+    }
+
+    .md3-text-btn.delete-btn {
+      color: var(--md-sys-color-error);
+    }
+
+    .md3-text-btn.icon-only {
+      padding: 8px;
+      gap: 0;
+    }
+
+    .md3-text-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: currentColor;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .md3-text-btn:hover::before {
+      opacity: 0.08;
+    }
+
+    .md3-text-btn:active::before {
+      opacity: 0.12;
+    }
+
+    .md3-text-btn svg {
+      width: 18px;
+      height: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .md3-text-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Empty state - MD3 style */
+    #emptyState {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--md-sys-color-on-surface-variant);
+      background-color: var(--md-sys-color-surface-variant);
+      border-radius: var(--md-sys-shape-large);
+      display: none;
+    }
+
+    .empty-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
+      color: var(--md-sys-color-outline);
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+      margin: 0 0 4px;
+    }
+
+    .empty-desc {
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* Playing state */
+    .record-card.playing {
+      box-shadow: var(--md-sys-elevation-2);
+    }
+
+    .record-card.playing::before {
+      opacity: 0.06;
+    }
+
+    .play-btn.playing {
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
+
+    /* MD3 Snackbar */
+    .snackbar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background-color: var(--md-sys-color-on-surface-variant);
+      color: var(--md-sys-color-surface);
+      padding: 14px 16px;
+      border-radius: var(--md-sys-shape-medium);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      min-width: 280px;
+      max-width: 560px;
+      box-shadow: var(--md-sys-elevation-3);
+      font-size: 14px;
+      letter-spacing: 0.25px;
+      z-index: 1000;
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .snackbar.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .snackbar-message {
+      flex: 1;
+    }
+
+    .snackbar-action {
+      background: none;
+      border: none;
+      color: var(--md-sys-color-primary-container);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.1px;
+      padding: 4px 8px;
+      border-radius: var(--md-sys-shape-medium);
+      cursor: pointer;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+      transition: background-color 0.2s;
+    }
+
+    .snackbar-action::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: currentColor;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .snackbar-action:hover::before {
+      opacity: 0.08;
+    }
+
+    .snackbar-action:active::before {
+      opacity: 0.12;
+    }
+
+    .snackbar-action span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 48px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 23px;
+      top: 20px;
+      bottom: 0;
+      width: 2px;
+      background-color: var(--md-sys-color-surface-variant);
+      border-radius: 1px;
+    }
+
+    .timeline-date-group {
+      margin-bottom: 24px;
+    }
+
+    .timeline-date-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-row {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .timeline-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid var(--md-sys-color-surface);
+      z-index: 2;
+    }
+
+    .timeline-dot.date {
+      width: 12px;
+      height: 12px;
+      left: -30px;
+      top: 50%;
+      margin-top: -6px;
+      background-color: var(--md-sys-color-primary);
+      box-shadow: 0 0 0 2px var(--md-sys-color-primary-container);
+    }
+
+    .timeline-dot.card {
+      width: 8px;
+      height: 8px;
+      left: -28px;
+      top: 20px;
+      background-color: var(--md-sys-color-outline);
+    }
+
+    .timeline-date-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+    }
+
+    .timeline-date-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--md-sys-color-primary);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .timeline-date-count {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+      background-color: var(--md-sys-color-surface-variant);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .timeline-card-wrapper {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>My Recordings</h1>
+    <p class="subtitle">Review and playback contexts captured by Mento Lens.</p>
+  </div>
+
+  <div id="emptyState">
+    <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+      <line x1="12" y1="19" x2="12" y2="22"/>
+    </svg>
+    <p class="empty-title">No recordings yet</p>
+    <p class="empty-desc">Open the extension popup and start capturing your work context.</p>
+  </div>
+
+  <div id="recordsContainer"></div>
+
+  <!-- Screenshot Lightbox -->
+  <div id="lightbox" class="lightbox-overlay">
+    <button class="lightbox-close" id="lightboxClose">&times;</button>
+    <div class="lightbox-content">
+      <div class="lightbox-image-row">
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div class="lightbox-img-wrapper" id="lightboxImgWrapper">
+          <img id="lightboxImg" class="lightbox-img" src="" alt="Screenshot">
+        </div>
+        <button class="lightbox-nav lightbox-next" id="lightboxNext">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+      <div class="lightbox-toolbar">
+        <div class="lightbox-counter" id="lightboxCounter">1 / 1</div>
+        <div class="lightbox-zoom-controls">
+          <button class="lightbox-zoom-btn" id="lightboxZoomOut" title="Zoom out">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+          </button>
+          <span class="lightbox-zoom-level" id="lightboxZoomLevel">100%</span>
+          <button class="lightbox-zoom-btn" id="lightboxZoomIn" title="Zoom in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+          </button>
+          <button class="lightbox-zoom-btn" id="lightboxZoomReset" title="Reset zoom">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MD3 Snackbar for Undo -->
+  <div id="snackbar" class="snackbar">
+    <span class="snackbar-message" id="snackbarMessage">Recording deleted</span>
+    <button class="snackbar-action" id="snackbarUndo"><span>Undo</span></button>
+  </div>
+
+  <script src="../lib/storage.js"></script>
+  <script src="history.js"></script>
+</body>
+</html>

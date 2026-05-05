@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mento Lens - Annotate Screenshot</title>
+  <style>
+    :root {
+      --md-sys-color-primary: #006874;
+      --md-sys-color-on-primary: #ffffff;
+      --md-sys-color-primary-container: #97f0ff;
+      --md-sys-color-on-primary-container: #001f24;
+      --md-sys-color-surface: #fbfdfd;
+      --md-sys-color-surface-variant: #dbe4e6;
+      --md-sys-color-on-surface: #191c1d;
+      --md-sys-color-on-surface-variant: #3f484a;
+      --md-sys-color-outline: #6f797a;
+      --md-sys-color-error: #ba1a1a;
+      --md-sys-color-error-container: #ffdad6;
+
+      --md-sys-shape-medium: 12px;
+      --md-sys-shape-large: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+      background-color: #1a1a1a;
+      color: var(--md-sys-color-on-surface);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background-color: var(--md-sys-color-surface);
+      border-bottom: 1px solid var(--md-sys-color-surface-variant);
+      z-index: 10;
+    }
+
+    .tool-group {
+      display: flex;
+      gap: 4px;
+      padding-right: 12px;
+      border-right: 1px solid var(--md-sys-color-surface-variant);
+    }
+
+    .tool-group:last-child {
+      border-right: none;
+      margin-left: auto;
+    }
+
+    .tool-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--md-sys-shape-medium);
+      border: none;
+      background: transparent;
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, color 0.2s;
+      position: relative;
+    }
+
+    .tool-btn:hover {
+      background-color: var(--md-sys-color-surface-variant);
+    }
+
+    .tool-btn.active {
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+
+    .tool-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .color-picker {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--md-sys-color-surface-variant);
+      cursor: pointer;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .color-picker input[type="color"] {
+      width: 150%;
+      height: 150%;
+      padding: 0;
+      margin: -25% 0 0 -25%;
+      border: none;
+      cursor: pointer;
+    }
+
+    .action-btn {
+      padding: 8px 20px;
+      border-radius: 100px;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .action-btn.primary {
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
+
+    .action-btn.primary:hover {
+      background-color: #004f58;
+    }
+
+    .action-btn.secondary {
+      background-color: transparent;
+      color: var(--md-sys-color-primary);
+      border: 1px solid var(--md-sys-color-outline);
+    }
+
+    .action-btn.secondary:hover {
+      background-color: var(--md-sys-color-surface-variant);
+    }
+
+    .action-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Canvas area */
+    .canvas-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      padding: 24px;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      border-radius: var(--md-sys-shape-medium);
+      overflow: hidden;
+    }
+
+    #screenshotCanvas {
+      display: block;
+      max-width: 100%;
+      max-height: calc(100vh - 140px);
+    }
+
+    /* Text input overlay */
+    .text-input-overlay {
+      position: absolute;
+      background: transparent;
+      border: 2px dashed var(--md-sys-color-primary);
+      color: var(--md-sys-color-primary);
+      font-size: 16px;
+      font-weight: 500;
+      padding: 4px 8px;
+      min-width: 100px;
+      outline: none;
+      z-index: 100;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="tool-group">
+      <button class="tool-btn active" data-tool="select" title="Select/Move">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="rect" title="Rectangle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="arrow" title="Arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="text" title="Text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+      </button>
+    </div>
+    <div class="tool-group">
+      <div class="color-picker" title="Color">
+        <input type="color" id="colorPicker" value="#ba1a1a">
+      </div>
+    </div>
+    <div class="tool-group">
+      <button class="action-btn secondary" id="undoBtn">Undo</button>
+      <button class="action-btn secondary" id="clearBtn">Clear</button>
+      <button class="action-btn primary" id="saveBtn">Save</button>
+    </div>
+  </div>
+
+  <div class="canvas-container">
+    <div class="canvas-wrapper" id="canvasWrapper">
+      <canvas id="screenshotCanvas"></canvas>
+    </div>
+  </div>
+
+  <script src="annotate.js"></script>
+</body>
+</html>
